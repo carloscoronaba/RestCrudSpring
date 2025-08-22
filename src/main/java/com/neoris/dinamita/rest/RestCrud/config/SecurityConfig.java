@@ -16,37 +16,33 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
-//@EnableWebSecurity
 public class SecurityConfig {
 
     @Autowired
     private JwtRequestFilter jwtRequestFilter;
 
-    //Se configuran opciones de seguridad utilizando el objeto http
     @Bean
     SecurityFilterChain web(HttpSecurity http) throws Exception{
         http
-                .cors(withDefaults()) //Habilita la configuracion de CORS
-                .csrf(crf -> crf.disable()) //Deshabilitmos la protección CSRF ya que utiliza tokens en vez de cookies de sesion
+                .cors(withDefaults()) 
+                .csrf(crf -> crf.disable()) 
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/api/auth/**").permitAll() //Se permite acceso sin autenticacion
-                        .anyRequest().authenticated() //Cualquier otra peticion necesita autenticacion
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .anyRequest().authenticated() 
                 )
-                .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class) //Se ejecuta el filtro de JWT
-                .sessionManagement((session) -> session //Indica que la autenticacion sera con token
+                .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class) 
+                .sessionManagement((session) -> session 
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 );
 
         return http.build();
     }
 
-    //Codificador de contraseñas
     @Bean
     PasswordEncoder passwordEncoder () {
         return  new BCryptPasswordEncoder();
     }
 
-    //Autentica las solicitudes de los clientes
     @Bean
     AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return  authenticationConfiguration.getAuthenticationManager();

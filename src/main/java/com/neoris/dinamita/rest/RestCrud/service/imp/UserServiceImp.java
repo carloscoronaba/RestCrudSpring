@@ -1,6 +1,5 @@
 package com.neoris.dinamita.rest.RestCrud.service.imp;
 
-import com.neoris.dinamita.rest.RestCrud.model.Persona;
 import com.neoris.dinamita.rest.RestCrud.model.UserModel;
 import com.neoris.dinamita.rest.RestCrud.repository.IUserRepository;
 import com.neoris.dinamita.rest.RestCrud.service.IUserService;
@@ -32,10 +31,8 @@ public class UserServiceImp implements IUserService {
                 System.out.println("Usuario existente");
                 return false;
             }else{
-                // Convertir los campos a mayúsculas antes de guardar
                 userModel.setName(userModel.getName().toUpperCase());
                 userModel.setEmail(userModel.getEmail().toUpperCase());
-                // Codificar la contraseña antes de guardarla
                 String passwordCodificada = codificarPsw(userModel.getPassword());
                 userModel.setPassword(passwordCodificada);
                 userRepository.save(userModel);
@@ -67,7 +64,6 @@ public class UserServiceImp implements IUserService {
         try {
             return userRepository.findAll();
         } catch (Exception ex) {
-            // Manejar la excepción adecuadamente
             return null;
         }
     }
@@ -80,7 +76,6 @@ public class UserServiceImp implements IUserService {
 
                 userModel.setName(newUserModel.getName().toUpperCase());
                 userModel.setEmail(newUserModel.getEmail().toUpperCase());
-                // Codificar la contraseña antes de guardarla
                 String passwordCodificada = codificarPsw(newUserModel.getPassword());
                 userModel.setPassword(passwordCodificada);
                 userRepository.save(userModel);

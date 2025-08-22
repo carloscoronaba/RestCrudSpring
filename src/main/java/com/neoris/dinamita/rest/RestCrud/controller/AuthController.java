@@ -3,7 +3,10 @@ package com.neoris.dinamita.rest.RestCrud.controller;
 import com.neoris.dinamita.rest.RestCrud.dao.AuthRequestDto;
 import com.neoris.dinamita.rest.RestCrud.dao.AuthResponseDto;
 import com.neoris.dinamita.rest.RestCrud.jwt.JwtUtilService;
-import io.micrometer.core.instrument.Counter;
+import com.neoris.dinamita.rest.RestCrud.model.UserModel;
+import com.neoris.dinamita.rest.RestCrud.repository.IUserRepository;
+import com.neoris.dinamita.rest.RestCrud.service.IUserService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,35 +24,33 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class AuthController {
 
     @Autowired
-    Counter customRequestCounter;
+    private IUserService iUserService;
+
 
     @Autowired
-    private AuthenticationManager authenticationManager; //Autentica las credenciales de usuario
+    private AuthenticationManager authenticationManager; 
 
     @Autowired
-    private UserDetailsService userDetailsService; //Carga los detalles del usuario desde la base de datos
+    private UserDetailsService userDetailsService; 
 
     @Autowired
-    private JwtUtilService jwtUtilService; //Genera el token JWT
+    private JwtUtilService jwtUtilService; 
+
+ 
+   
+
 
     @PostMapping("/login")
     public ResponseEntity<?> auth(@RequestBody AuthRequestDto authRequestDto){
 
-        // Incrementa el contador de solicitudes personalizadas
-        customRequestCounter.increment();
 
-        //BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        //String hashedPassword = encoder.encode(authRequestDto.getPassword());
         try {
-            //1. Gestion authenticationManager
             this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                     authRequestDto.getUser(), authRequestDto.getPassword()
             ));
 
-            //2. Validar el usuario en la bd
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(authRequestDto.getUser());
 
-            //3. Generar token
             String jwt = this.jwtUtilService.generateToken(userDetails);
 
             AuthResponseDto authResponseDto = new AuthResponseDto();
@@ -64,4 +65,23 @@ public class AuthController {
 
     }
 
+    @PostMapping("/registro")
+    public ResponseEntity<String> insertarPersona(@RequestBody UserModel userModel){
+
+        try {
+            System.out.println(userModel);
+            if (iUserService.agregarUsuario(userModel)) {
+                return ResponseEntity.status(HttpStatus.CREATED).body("Usuario Ingresado con exito: " + userModel);
+            } else {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("Correo electronico o UserName ya existe: " + userModel.getEmail());
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            System.out.println("No se ha podido insertar al usuario: " + ex.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
 }
+
+
+

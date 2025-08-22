@@ -12,21 +12,19 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 
 @Service
-public class UserDetailsServiceImp implements UserDetailsService {
+public class UserDetailsServiceImp implements UserDetailsService { 
 
     @Autowired
-    IUserRepository userRepository;
+    private IUserRepository userRepository;
 
-    //Carga los detalles del usuario a traves del username
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // Consulta a la base de datos
         UserModel userModel = this.userRepository.findByName(username.toUpperCase());
-        if (username == null){
+        
+        if (userModel == null){  
             throw new UsernameNotFoundException(username.toUpperCase());
         }
+        
         return new User(userModel.getName(), userModel.getPassword(), new ArrayList<>());
-
     }
-
 }

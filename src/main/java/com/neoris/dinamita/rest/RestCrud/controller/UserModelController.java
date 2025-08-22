@@ -1,14 +1,8 @@
 package com.neoris.dinamita.rest.RestCrud.controller;
 
-import com.neoris.dinamita.rest.RestCrud.model.Persona;
 import com.neoris.dinamita.rest.RestCrud.model.UserModel;
 import com.neoris.dinamita.rest.RestCrud.service.IUserService;
-import io.micrometer.core.instrument.Counter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -20,19 +14,15 @@ import java.util.List;
 @RequestMapping("/usuarios")
 public class UserModelController {
 
-    private final Counter customRequestCounter;
     private final IUserService iUserService;
 
     @Autowired
-    public UserModelController(Counter customRequestCounter, IUserService iUserService) {
-        this.customRequestCounter = customRequestCounter;
+    public UserModelController(IUserService iUserService) {
         this.iUserService = iUserService;
     }
 
     @PostMapping("/registro")
     public ResponseEntity<String> insertarPersona(@RequestBody UserModel userModel){
-        // Incrementa el contador de solicitudes personalizadas
-        customRequestCounter.increment();
 
         try {
             System.out.println(userModel);
@@ -50,8 +40,6 @@ public class UserModelController {
 
     @GetMapping("/listar")
     public ResponseEntity<Object>listarUsuarios(){
-        // Incrementa el contador de solicitudes personalizadas
-        customRequestCounter.increment();
 
         try{
             List<UserModel> listaUsers = iUserService.listaUsuarios();
@@ -67,8 +55,6 @@ public class UserModelController {
 
     @DeleteMapping("/eliminar")
     public ResponseEntity<String> eliminarUserModel(@RequestParam String email) {
-        // Incrementa el contador de solicitudes personalizadas
-        customRequestCounter.increment();
 
         boolean eliminado = iUserService.eliminarUsuario(email);
         if (eliminado) {
@@ -80,8 +66,6 @@ public class UserModelController {
 
     @PutMapping("/modificar")
     public ResponseEntity<String> modificarUserModel(@RequestParam String email, @RequestBody UserModel userModel){
-        // Incrementa el contador de solicitudes personalizadas
-        customRequestCounter.increment();
 
         boolean editado = iUserService.editarUsuario(email, userModel);
         if(editado){

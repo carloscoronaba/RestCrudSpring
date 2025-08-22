@@ -24,23 +24,16 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     @Autowired
     private JwtUtilService jwtUtilService;
 
-    //Realiza la logica principal del filtro y se llama automaticamente por Spring en cada solicitud de token
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        final String authorizationHeader = request.getHeader("Authorization"); //Obtiene el encabezado
+        final String authorizationHeader = request.getHeader("Authorization");
 
-        //Verifica si comienza con Bearer
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            //Si es valido extrae el token JWT y el username
             String jwt = authorizationHeader.substring(7);
             String username = jwtUtilService.extractUsername(jwt);
-
-            //Verifica si el nombre de usuario es valido y si no hay autenticacion actualmente
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                //Carga los detalles del usuario
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
 
-                //Si el token es valido crea un objeto UsernamePassword y establece esta autenticacion en el contexto de seguridad
                 if (jwtUtilService.validateToken(jwt, userDetails)) {
                     UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                             userDetails, null, userDetails.getAuthorities());
@@ -49,6 +42,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 }
             }
         }
-        filterChain.doFilter(request, response); //Pasa la solicitud al siguiente filtro de filterChain
+        filterChain.doFilter(request, response); 
     }
 }
